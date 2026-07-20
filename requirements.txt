@@ -1,0 +1,5 @@
+# whatslab teleop core (git install; not on PyPI). Pinned to the v0.1.0 tag.
+whatslab-sdk[hand,receiver] @ git+https://github.com/whats-lab/whatslab-sdk.git@v0.1.0
+
+# numpy<2: hard constraint from dex-retargeting; pinocchio must be built against it.
+numpy<2.0
