@@ -1,4 +1,4 @@
-# AGA Hand Docker 환경
+# airglove_ros2 Docker 환경
 
 ## 구조
 
@@ -40,7 +40,7 @@ export FASTDDS_BUILTIN_TRANSPORTS=UDPv4
 
 | 명령어 | 설명 |
 |--------|------|
-| `./docker/docker.sh build` | 전체 이미지 빌드 (dex-retargeting, pin 포함) |
+| `./docker/docker.sh build` | 전체 이미지 빌드 (airglove-client, whatslab-sdk, dexhand-description 포함) |
 | `./docker/docker.sh enter` | 인터랙티브 셸 진입 |
 
 ---
@@ -51,6 +51,6 @@ export FASTDDS_BUILTIN_TRANSPORTS=UDPv4
 ros:jazzy-ros-base
   └── rosdep install     # ROS 의존성 자동 설치
   └── pip install        # requirements.txt 전체 패키지 설치
-  └── colcon build       # atlas_hand 패키지 빌드
-  └── .bashrc 설정       # source, alias cb, ROS_DOMAIN_ID=30
+  └── colcon build       # airglove_msgs · airglove_driver · airglove_retargeting 빌드
+  └── .bashrc 설정       # source, alias cb
 ```

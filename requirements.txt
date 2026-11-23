@@ -1,5 +1,3 @@
-# whatslab teleop core (git install; not on PyPI). Pinned to the v0.1.0 tag.
-whatslab-sdk[hand,receiver] @ git+https://github.com/whats-lab/whatslab-sdk.git@v0.1.0
-
-# numpy<2: hard constraint from dex-retargeting; pinocchio must be built against it.
-numpy<2.0
+# pip dependencies for the colcon packages in this repository (not on PyPI; git tags).
+-r airglove_driver/requirements.txt
+-r airglove_retargeting/requirements.txt

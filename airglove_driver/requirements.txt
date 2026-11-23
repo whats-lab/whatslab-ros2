@@ -1,0 +1,2 @@
+# AirGlove-Client (not on PyPI) — Spine 3.0.0 / OSC protocol 3 client.
+airglove-client @ git+https://github.com/whats-lab/AirGlove-Client.git@v0.4.0#subdirectory=python

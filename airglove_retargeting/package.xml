@@ -1,0 +1,35 @@
+<?xml version="1.0"?>
+<?xml-model href="http://download.ros.org/schema/package_format3.xsd" schematypens="http://www.w3.org/2001/XMLSchema"?>
+<package format="3">
+  <name>airglove_retargeting</name>
+  <version>0.2.0</version>
+  <description>Human hand (OpenXR 26 joints, airglove_msgs/HandJoints) → robot hand joint angles with whatslab GeoRT soft-prompt retargeting, plus a joint-command safety gate.</description>
+  <maintainer email="sdh@whatslab.co.kr">whatslab</maintainer>
+  <license>CC BY-NC-ND 4.0</license>
+
+  <buildtool_depend>ament_python</buildtool_depend>
+
+  <depend>rclpy</depend>
+  <depend>airglove_msgs</depend>
+  <depend>sensor_msgs</depend>
+  <depend>std_msgs</depend>
+  <depend>std_srvs</depend>
+  <depend>ament_index_python</depend>
+  <depend>rcl_interfaces</depend>
+  <exec_depend>python3-numpy</exec_depend>
+  <exec_depend>python3-yaml</exec_depend>
+  <exec_depend>airglove_driver</exec_depend>  <!-- retargeting.launch.py driver:=true -->
+  <exec_depend>launch</exec_depend>
+  <exec_depend>launch_ros</exec_depend>
+  <!-- dexhand_description: colcon package or pip (requirements.txt) -->
+  <exec_depend>robot_state_publisher</exec_depend>
+  <exec_depend>joint_state_publisher_gui</exec_depend>
+  <exec_depend>rviz2</exec_depend>
+  <!-- whatslab-sdk (pip, git tag v0.5.0): see requirements.txt -->
+
+  <test_depend>python3-pytest</test_depend>
+
+  <export>
+    <build_type>ament_python</build_type>
+  </export>
+</package>
