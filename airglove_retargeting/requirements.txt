@@ -1,5 +1,5 @@
 # whatslab teleop SDK (not on PyPI) — GeoRT soft-prompt retargeting, safety filter. Spine 3.0.0 from v0.5.0.
-whatslab-sdk @ git+https://github.com/whats-lab/whatslab-sdk.git@9d25b3de43a2cfda7010ddc9b464ac55044a4a35
+whatslab-sdk @ git+https://github.com/whats-lab/whatslab-sdk.git@bd1abe0f3a9853702af30a7e75b3cd1522d18742
 # URDF/meshes (robot_urdf 0-fill, hand_view). Also usable as a colcon package.
 dexhand-description @ git+https://github.com/whats-lab/dexterous-hand-urdf.git
 # numpy<2: ROS 2 Jazzy 시스템 패키지(rclpy 등)가 numpy 1.x 기준으로 빌드돼 있다.

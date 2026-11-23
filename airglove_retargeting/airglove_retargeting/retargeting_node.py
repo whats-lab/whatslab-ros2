@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
-"""사람 손(OpenXR 26관절) → 로봇 손 관절각 노드 (whatslab HandRetargetController).
+"""사람 손(OpenXR 26관절) → 로봇 손 관절각 노드 (whatslab HandRetargeter).
 
   /airglove/{side}/joints (airglove_msgs/HandJoints)
-    ─► HandRetargetController ─► sensor_msgs/JointState
+    ─► HandRetargeter ─► sensor_msgs/JointState
 
 엔진은 `retarget` 파라미터로 고른다:
   geort:<설정>  GeoRT 소프트 프롬프트 (numpy, 기본 geort:orca_right) — 모델은 SDK 에 동봉
@@ -31,7 +31,7 @@ from sensor_msgs.msg import JointState
 from airglove_msgs.msg import HandJoints
 from airglove_retargeting.assets import description_share
 from whatslab.core.types import HandPose, InputSample
-from whatslab.solvers.hand.controller import DEX_PREFIX, HandRetargetController
+from whatslab.retarget.retargeter import DEX_PREFIX, HandRetargeter
 
 DEFAULT_RETARGET = 'geort:orca_right'
 DEFAULT_URDF = 'orca_hand/urdf/{side}.urdf'
@@ -77,7 +77,7 @@ def resolve_urdf(path: str) -> str:
 
 
 class RetargetingNode(Node):
-    """HandJoints 를 HandRetargetController 로 풀어 로봇 손 JointState 로 발행한다."""
+    """HandJoints 를 HandRetargeter 로 풀어 로봇 손 JointState 로 발행한다."""
 
     def __init__(self):
         super().__init__('airglove_retargeting')
@@ -97,7 +97,7 @@ class RetargetingNode(Node):
         cfg = str(_p('retarget'))
         # dex 엔진도 노드와 같은 자산 루트(ament 우선)에서 URDF 를 찾게 한다.
         root = description_share() or None
-        self._ctrl = {s: HandRetargetController(s, cfg, urdf_root=root) for s in self._sides}
+        self._ctrl = {s: HandRetargeter(cfg, side=s, urdf_root=root) for s in self._sides}
         self._all_joints = {s: self._urdf_joints(str(_p('robot_urdf')), s) for s in self._sides}
 
         ns = str(_p('input_namespace')).rstrip('/')
@@ -148,7 +148,7 @@ class RetargetingNode(Node):
     def _reset(self, side: str) -> None:
         """엔진 상태를 비운다.
 
-        SDK 는 ValueError 때만 스스로 리셋해, 다른 오류 뒤에는 warm start 가 오염된 채 남는다.
+        SDK 는 HandInputError 때만 스스로 리셋해, 다른 오류 뒤에는 warm start 가 오염된 채 남는다.
         """
         try:
             self._ctrl[side].reset()
@@ -159,14 +159,6 @@ class RetargetingNode(Node):
 
     def _on_hand(self, side: str, msg: HandJoints) -> None:
         ctrl = self._ctrl[side]
-        # dex 엔진(SDK)은 xr_valid 를 보지 않아, 원점으로 채운 무효 관절을 진짜 손끝으로 푼다.
-        # 전부 무효(추적 끊김)는 compute 로 보내 엔진을 리셋하게 둔다.
-        if ctrl.engine_name == DEX_PREFIX and any(msg.valid) and not all(msg.valid):
-            self.get_logger().warn(
-                f'[{side}] 무효 관절이 있어 건너뜀 — 로봇 손은 직전 값 유지 (dex)',
-                throttle_duration_sec=1.0,
-            )
-            return
         sample = hand_sample(msg)
         try:
             cmd = ctrl.compute(sample)
