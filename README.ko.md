@@ -32,7 +32,7 @@ Spine 은 PC 당 클라이언트 하나(UDP 4040)에만 보내므로 `airglove_d
 
 | 토픽 | 타입 | 방향 | 설명 |
 |---|---|---|---|
-| `/airglove/{left,right}/joints` | `airglove_msgs/HandJoints` | 드라이버 → | 새 손 프레임마다(Spine 주기). 26 × `[qx qy qz qw px py pz radius]`, 손목 기준, m, OpenXR 관절 순서·축. `valid[26]` |
+| `/airglove/{left,right}/joints` | `airglove_msgs/HandJoints` | 드라이버 → | 새 손 프레임마다. 초당 `publish_hz`(120)번 확인합니다. 26 × `[qx qy qz qw px py pz radius]`, 손목 기준, m, OpenXR 관절 순서·축. `valid[26]` |
 | `/airglove/{left,right}/wrist` | `airglove_msgs/WristOrientation` | 드라이버 → | Spine 이 보내는 손등 IMU 원시 quat(`[y, x, z, -w]`). 손목 자세가 아님 |
 | `/airglove/status` | `airglove_msgs/DeviceStatus` | 드라이버 → | 1 Hz: 글러브 연결, Spine 프로토콜(3), heartbeat 경과 |
 | `/airglove/alarm` | `airglove_msgs/Alarm` | 드라이버 → | `RESTART`, `ATLAS_DEVICE_ERROR` |
@@ -42,7 +42,7 @@ Spine 은 PC 당 클라이언트 하나(UDP 4040)에만 보내므로 `airglove_d
 
 진동시키는 동안에는 `Haptics` 를 계속 발행해 주세요. 드라이버는 `haptics_timeout`(1초) 동안 명령이
 없으면 0 을 보냅니다(`0` 이면 0 을 보낼 때까지 마지막 명령을 유지합니다). 또 그 햅틱 토픽에 발행하는
-노드가 없어지거나(보내던 노드가 죽은 경우 등, 1초마다 확인) 드라이버가 종료할 때 0 을 보냅니다. 끄기는
+노드가 없어지거나(보내던 노드가 죽은 경우 등. 1초마다 확인해 두 번 연속, 약 2초면 끕니다) 드라이버가 종료할 때 0 을 보냅니다. 끄기는
 0.2초 간격으로 최소 두 번 보내고, Spine 이 확인(`success` true)할 때까지 최대 5초 동안 다시 보냅니다.
 발행자가 0 을 반복해 보내도 다시 전달하지 않습니다. Spine 도 드라이버가 3초 동안 응답이 없으면 끕니다.
 
@@ -86,18 +86,23 @@ ros2 launch airglove_retargeting retargeting.launch.py driver:=false   # 리타�
 ros2 launch airglove_driver driver.launch.py                           # 드라이버만
 ros2 run airglove_driver haptics_keyboard --ros-args -p side:=left     # 햅틱 테스트 (키 0-3)
 ros2 launch airglove_retargeting hand_view.launch.py gui:=false        # rviz (기본 orca_hand 오른손)
+ros2 launch airglove_retargeting hand_view.launch.py model:=robotis_hx5_d20   # geort:hx5_right·dex:robotis 를 rviz 로
+ros2 run airglove_retargeting safety_gate --ros-args -p robot_description:="$(cat hand.urdf)"
 ```
 
 `hand_type:=both` 는 `/{side}_hand/joint_states` 로 나눠 발행합니다. `hand_view` 는 `/joint_states` 로 한 손만
 보여 주므로, 한쪽을 보려면 relay 해 주세요(패키지 `ros-jazzy-topic-tools`):
 `ros2 run topic_tools relay /left_hand/joint_states /joint_states` 와 `hand_view.launch.py gui:=false`.
 `hand_view` 의 `side` 는 로봇 손 쪽입니다. `geort:orca_right` 면 왼손 글러브여도 `right` 입니다.
+`hand_view` 의 `model` 은 `base_hand`, `orca_hand`, `allegro_hand`, `tesollo_dg5f`, `robotis_hx5_d20`, `leap_hand`,
+`ability_hand`, `schunk_hand` 중 하나입니다. `retargeting.launch.py` 는 `driver:=true` 일 때 아래 드라이버
+파라미터(`pair`, `listen_port`, `spine_port`, `publish_hz`, `haptics_timeout`)도 받습니다.
 
 | 노드 | 파라미터 |
 |---|---|
-| `airglove_driver` | `pair`(1), `listen_port`(4040), `spine_port`(4042), `publish_hz`(120), `haptics_timeout`(1.0 s, 0 = 끔; haptics_keyboard 재전송 주기인 0.3 s 보다 길게) |
+| `airglove_driver` | `pair`(1), `listen_port`(4040), `spine_port`(4042), `publish_hz`(120, 새 프레임 확인 주기), `haptics_timeout`(1.0 s, 0 = 끔; haptics_keyboard 재전송 주기인 0.3 s 보다 길게) |
 | `airglove_retargeting` | `hand_type`(`left`\|`right`\|`both`), `retarget` (`geort:orca_right`), `robot_urdf`(리타게팅 대상이 아닌 관절 0 채움), `input_namespace`(`/airglove`) |
-| `safety_gate` | `robot_description`, `limits_override`, `timeout`, `output_hz`, `enable_deadman` — sub `~/command_raw` → pub `~/command_safe`; srv `~/estop`, `~/reset`; sub `~/enable` |
+| `safety_gate` | `robot_description`(필수), `limits_override`, `timeout`(0.2 s), `output_hz`(100), `enable_deadman`(false) — sub `~/command_raw` → pub `~/command_safe`; srv `~/estop`, `~/reset`; sub `~/enable` |
 
 ## 호환성
 
@@ -113,6 +118,7 @@ Spine **3.0.0**(OSC 프로토콜 3), AirGlove-Client 0.4.0 을 씁니다. Spine 
 | 햅틱 `/{left,right}_hand/haptic` 의 `Int32MultiArray`, `…/haptic/off` 의 `Empty` | `/airglove/{left,right}/haptics` 의 `airglove_msgs/Haptics` (모두 0 = 끔) |
 | `input_source:=meta_quest`(Quest 손 입력), 사람 손 TF | 없어졌습니다 — 직접 만든 브리지에서 `airglove_msgs/HandJoints` 를 발행하세요 |
 | `atlas_arm_teleop` / `arm_teleop.launch.py` | 없어졌습니다 — 0.1.0 을 계속 쓰세요 |
+| 파라미터 `robot_config`, `server_port`, `osc_port` | `retarget`, `listen_port`. `osc_port`(Quest)는 없어졌습니다 |
 
 ## 라이선스
 

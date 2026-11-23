@@ -33,7 +33,7 @@ It accepts any source that publishes `airglove_msgs/HandJoints` (e.g. a headset 
 
 | Topic | Type | Direction | Notes |
 |---|---|---|---|
-| `/airglove/{left,right}/joints` | `airglove_msgs/HandJoints` | driver → | every new hand frame (~Spine rate). 26 × `[qx qy qz qw px py pz radius]`, wrist-relative, metres, OpenXR joint order and axes; `valid[26]` |
+| `/airglove/{left,right}/joints` | `airglove_msgs/HandJoints` | driver → | each new hand frame, checked `publish_hz` times a second (120). 26 × `[qx qy qz qw px py pz radius]`, wrist-relative, metres, OpenXR joint order and axes; `valid[26]` |
 | `/airglove/{left,right}/wrist` | `airglove_msgs/WristOrientation` | driver → | raw dorsum IMU quaternion as Spine sends it (`[y, x, z, -w]`), not a wrist pose |
 | `/airglove/status` | `airglove_msgs/DeviceStatus` | driver → | 1 Hz: gloves connected, Spine protocol (3), heartbeat age |
 | `/airglove/alarm` | `airglove_msgs/Alarm` | driver → | `RESTART`, `ATLAS_DEVICE_ERROR` |
@@ -43,8 +43,8 @@ It accepts any source that publishes `airglove_msgs/HandJoints` (e.g. a headset 
 
 Publish `Haptics` continuously while the glove should vibrate: the driver sends zeros when no command
 has arrived for `haptics_timeout` (1 s; `0` keeps the last command until zeros are sent). It also sends
-zeros when no node publishes on that haptics topic any more (checked every second, e.g. the sender
-crashed) and when it exits. A stop goes out at least twice, 0.2 s apart, and is resent until Spine
+zeros when no node publishes on that haptics topic any more (checked once a second; zeros go out after
+two checks in a row, about 2 s, e.g. the sender crashed) and when it exits. A stop goes out at least twice, 0.2 s apart, and is resent until Spine
 confirms it (`success` true), for up to 5 s; repeated zeros from a publisher are not forwarded again.
 Spine itself turns haptics off when it has not heard the driver for 3 s.
 
@@ -88,18 +88,23 @@ ros2 launch airglove_retargeting retargeting.launch.py driver:=false   # retarge
 ros2 launch airglove_driver driver.launch.py                           # driver only
 ros2 run airglove_driver haptics_keyboard --ros-args -p side:=left     # haptics test (keys 0-3)
 ros2 launch airglove_retargeting hand_view.launch.py gui:=false        # rviz (default: orca_hand, right)
+ros2 launch airglove_retargeting hand_view.launch.py model:=robotis_hx5_d20   # rviz for geort:hx5_right / dex:robotis
+ros2 run airglove_retargeting safety_gate --ros-args -p robot_description:="$(cat hand.urdf)"
 ```
 
 `hand_type:=both` publishes per hand on `/{side}_hand/joint_states`. `hand_view` shows one hand from
 `/joint_states`, so to watch one of them, relay it (package `ros-jazzy-topic-tools`):
 `ros2 run topic_tools relay /left_hand/joint_states /joint_states` with `hand_view.launch.py gui:=false`.
 `hand_view`'s `side` is the robot hand's side: `right` for `geort:orca_right`, even for a left glove.
+`hand_view`'s `model` is one of `base_hand`, `orca_hand`, `allegro_hand`, `tesollo_dg5f`, `robotis_hx5_d20`,
+`leap_hand`, `ability_hand`, `schunk_hand`. `retargeting.launch.py` also takes the driver parameters below
+(`pair`, `listen_port`, `spine_port`, `publish_hz`, `haptics_timeout`) when `driver:=true`.
 
 | Node | Parameters |
 |---|---|
-| `airglove_driver` | `pair` (1), `listen_port` (4040), `spine_port` (4042), `publish_hz` (120), `haptics_timeout` (1.0 s, 0 = off; keep above 0.3 s, haptics_keyboard's resend period) |
+| `airglove_driver` | `pair` (1), `listen_port` (4040), `spine_port` (4042), `publish_hz` (120, how often it checks for a new frame), `haptics_timeout` (1.0 s, 0 = off; keep above 0.3 s, haptics_keyboard's resend period) |
 | `airglove_retargeting` | `hand_type` (`left`\|`right`\|`both`), `retarget` (`geort:orca_right`), `robot_urdf` (zero-fills non-retargeted joints), `input_namespace` (`/airglove`) |
-| `safety_gate` | `robot_description`, `limits_override`, `timeout`, `output_hz`, `enable_deadman` — sub `~/command_raw` → pub `~/command_safe`; srv `~/estop`, `~/reset`; sub `~/enable` |
+| `safety_gate` | `robot_description` (required), `limits_override`, `timeout` (0.2 s), `output_hz` (100), `enable_deadman` (false) — sub `~/command_raw` → pub `~/command_safe`; srv `~/estop`, `~/reset`; sub `~/enable` |
 
 ## Compatibility
 
@@ -115,6 +120,7 @@ Moving from 0.1.0 (`atlas_hand`):
 | haptics `Int32MultiArray` on `/{left,right}_hand/haptic`, `Empty` on `…/haptic/off` | `airglove_msgs/Haptics` on `/airglove/{left,right}/haptics` (all zeros = off) |
 | `input_source:=meta_quest` (Quest hand input), human-hand TF | removed — publish `airglove_msgs/HandJoints` from your own bridge |
 | `atlas_arm_teleop` / `arm_teleop.launch.py` | removed — stay on 0.1.0 |
+| parameters `robot_config`, `server_port`, `osc_port` | `retarget`, `listen_port`; `osc_port` (Quest) removed |
 
 ## License
 
