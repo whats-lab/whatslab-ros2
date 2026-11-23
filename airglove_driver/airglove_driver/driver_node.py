@@ -46,7 +46,7 @@ STOP_RETRY_WINDOW_S = 5.0
 ORPHAN_TICKS = 2
 _INSTALL_HINT = (
     "airglove-client 가 없습니다: pip install --break-system-packages 'airglove-client @ "
-    "git+https://github.com/whats-lab/AirGlove-Client.git@v0.4.0#subdirectory=python'"
+    "git+https://github.com/whats-lab/AirGlove-Client.git@v1.0.0#subdirectory=python'"
 )
 
 

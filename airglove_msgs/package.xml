@@ -2,7 +2,7 @@
 <?xml-model href="http://download.ros.org/schema/package_format3.xsd" schematypens="http://www.w3.org/2001/XMLSchema"?>
 <package format="3">
   <name>airglove_msgs</name>
-  <version>0.2.0</version>
+  <version>1.0.0</version>
   <description>AirGlove messages — Spine 3.0.0 hand joints, wrist, device status, alarms and haptics, as Spine sends them.</description>
   <maintainer email="sdh@whatslab.co.kr">whatslab</maintainer>
   <license>CC BY-NC-ND 4.0</license>

@@ -83,7 +83,7 @@ cd ~/ros2_ws && colcon build && source install/setup.bash
 |---|---|---|---|
 | `geort:orca_right` | GeoRT 소프트 프롬프트 | — (모델은 whatslab-sdk 에 동봉) | `orca_hand/urdf/{side}.urdf` (기본, `{side}` = left/right) |
 | `geort:hx5_right` | GeoRT 소프트 프롬프트 | — (모델은 whatslab-sdk 에 동봉) | `robotis_hx5_d20/urdf/hx5_d20_right.urdf` |
-| `dex:orca`, `dex:allegro`, `dex:leap`, `dex:ability`, `dex:schunk`, `dex:dg5f`, `dex:robotis` | dex-retargeting DexPilot | `pip install --break-system-packages 'whatslab-sdk[hand] @ git+https://github.com/whats-lab/whatslab-sdk.git@v0.5.0' 'numpy<2.0'` (torch) | 해당 손 URDF |
+| `dex:orca`, `dex:allegro`, `dex:leap`, `dex:ability`, `dex:schunk`, `dex:dg5f`, `dex:robotis` | dex-retargeting DexPilot | `pip install --break-system-packages 'whatslab-sdk[hand] @ git+https://github.com/whats-lab/whatslab-sdk.git@v1.0.0' 'numpy<2.0'` (torch) | 해당 손 URDF |
 
 GeoRT 는 numpy 만으로 돕니다. 학습된 모델은 whatslab-sdk 에 함께 들어 있고, 다른 모델을 쓰려면
 `WHATSLAB_GEORT_MODEL` 로 지정하세요. 모델은 오른손용이고 왼손 글러브는 좌우 반전해서 씁니다 — 그래서

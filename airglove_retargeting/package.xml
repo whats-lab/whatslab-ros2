@@ -2,7 +2,7 @@
 <?xml-model href="http://download.ros.org/schema/package_format3.xsd" schematypens="http://www.w3.org/2001/XMLSchema"?>
 <package format="3">
   <name>airglove_retargeting</name>
-  <version>0.2.0</version>
+  <version>1.0.0</version>
   <description>Human hand (OpenXR 26 joints, airglove_msgs/HandJoints) → robot hand joint angles with whatslab GeoRT soft-prompt retargeting, plus a joint-command safety gate.</description>
   <maintainer email="sdh@whatslab.co.kr">whatslab</maintainer>
   <license>CC BY-NC-ND 4.0</license>
