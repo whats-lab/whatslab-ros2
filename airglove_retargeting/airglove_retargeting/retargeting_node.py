@@ -13,12 +13,12 @@ from rclpy.qos import HistoryPolicy, QoSProfile, ReliabilityPolicy
 from sensor_msgs.msg import JointState
 
 from airglove_msgs.msg import HandJoints
-from airglove_retargeting.assets import description_share
+from airglove_retargeting.assets import description_share, resolve_urdf
 from whatslab.core.types import HandPose, InputSample
 from whatslab.retarget.retargeter import DEX_PREFIX, HandRetargeter
 
 DEFAULT_RETARGET = 'geort:orca_right'
-DEFAULT_URDF = 'orca_hand/urdf/{side}.urdf'
+DEFAULT_URDF = 'orca_hand'
 SIDES = ('left', 'right')
 
 SENSOR_QOS = QoSProfile(
@@ -39,15 +39,6 @@ def hand_sample(msg: HandJoints) -> InputSample:
 def urdf_nonfixed_joints(urdf_path: str) -> list:
     root = ET.parse(urdf_path).getroot()
     return [j.get('name') for j in root.findall('joint') if j.get('type') != 'fixed']
-
-
-def resolve_urdf(path: str) -> str:
-    if not path:
-        return ''
-    if os.path.isabs(path):
-        return path
-    share = description_share()
-    return os.path.join(share, path) if share else ''
 
 
 class RetargetingNode(Node):
@@ -90,9 +81,9 @@ class RetargetingNode(Node):
     def _urdf_joints(self, pattern: str, side: str) -> list:
         driven = self._ctrl[side].joint_names
         other = 'right' if side == 'left' else 'left'
-        robot_sides = (side, other) if '{side}' in pattern else (side,)
-        for robot_side in robot_sides:
-            urdf = resolve_urdf(pattern.replace('{side}', robot_side))
+        per_side = '{side}' in pattern or not pattern.endswith('.urdf')
+        for robot_side in (side, other) if per_side else (side,):
+            urdf = resolve_urdf(pattern, robot_side)
             if not urdf or not os.path.exists(urdf):
                 continue
             joints = urdf_nonfixed_joints(urdf)

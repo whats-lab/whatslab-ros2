@@ -81,13 +81,15 @@ cd ~/ros2_ws && colcon build && source install/setup.bash
 
 | `retarget` | 엔진 | 필요한 것 | `robot_urdf` (dexhand-description) |
 |---|---|---|---|
-| `geort:orca_right` | GeoRT 소프트 프롬프트 | — (모델은 whatslab-sdk 에 동봉) | `orca_hand/urdf/{side}.urdf` (기본, `{side}` = left/right) |
-| `geort:hx5_right` | GeoRT 소프트 프롬프트 | — (모델은 whatslab-sdk 에 동봉) | `robotis_hx5_d20/urdf/hx5_d20_right.urdf` |
+| `geort:orca_right` | GeoRT 소프트 프롬프트 | — (모델은 whatslab-sdk 에 동봉) | `orca_hand` (기본) |
+| `geort:hx5_right` | GeoRT 소프트 프롬프트 | — (모델은 whatslab-sdk 에 동봉) | `robotis_hx5_d20` |
 | `dex:orca`, `dex:allegro`, `dex:leap`, `dex:ability`, `dex:schunk`, `dex:dg5f`, `dex:robotis` | dex-retargeting DexPilot | `pip install --break-system-packages 'whatslab-sdk[hand] @ git+https://github.com/whats-lab/whatslab-sdk.git@v1.0.0' 'numpy<2.0'` (torch) | 해당 손 URDF |
 
 GeoRT 는 numpy 만으로 돕니다. 학습된 모델은 whatslab-sdk 에 함께 들어 있고, 다른 모델을 쓰려면
 `WHATSLAB_GEORT_MODEL` 로 지정하세요. 모델은 오른손용이고 왼손 글러브는 좌우 반전해서 씁니다 — 그래서
-왼손 입력도 **오른손 로봇 관절**을 냅니다. `robot_urdf` 에 `{side}` 가 있으면 노드가 오른손 URDF 를 알아서 고릅니다. Allegro·DG-5F-S
+왼손 입력도 **오른손 로봇 관절**을 냅니다. 이때 노드가 오른손 URDF 를 알아서 고릅니다. `robot_urdf` 는
+dexhand-description 의 손 폴더 이름(`hand_view` 의 `model` 과 같은 규칙)이나 URDF 경로(절대 경로 또는 그 패키지
+기준, `{side}` = left/right)입니다. Allegro·DG-5F-S
 프롬프트도 들어 있지만 관절 이름이 아직 dexhand-description 에 없는 URDF 기준입니다.
 DexPilot 은 whatslab-sdk 의 `configs/hands/<손>_<side>.yaml` 이 있는 URDF 면 어떤 손이든 됩니다.
 
@@ -101,6 +103,7 @@ ros2 launch airglove_driver driver.launch.py                           # 드라�
 ros2 run airglove_driver haptics_keyboard --ros-args -p side:=left     # 햅틱 테스트 (키 0-3)
 ros2 launch airglove_retargeting hand_view.launch.py gui:=false        # rviz (기본 orca_hand 오른손)
 ros2 launch airglove_retargeting hand_view.launch.py model:=robotis_hx5_d20   # geort:hx5_right·dex:robotis 를 rviz 로
+ros2 launch airglove_retargeting hand_view.launch.py urdf:=/path/to/hand.urdf  # 임의의 URDF
 ros2 run airglove_retargeting safety_gate --ros-args -p robot_description:="$(cat hand.urdf)"
 ```
 
@@ -108,8 +111,11 @@ ros2 run airglove_retargeting safety_gate --ros-args -p robot_description:="$(ca
 보여 주므로, 한쪽을 보려면 relay 해 주세요(패키지 `ros-jazzy-topic-tools`):
 `ros2 run topic_tools relay /left_hand/joint_states /joint_states` 와 `hand_view.launch.py gui:=false`.
 `hand_view` 의 `side` 는 로봇 손 쪽입니다. `geort:orca_right` 면 왼손 글러브여도 `right` 입니다.
-`hand_view` 의 `model` 은 `base_hand`, `orca_hand`, `allegro_hand`, `tesollo_dg5f`, `robotis_hx5_d20`, `leap_hand`,
-`ability_hand`, `schunk_hand` 중 하나입니다. `retargeting.launch.py` 는 `driver:=true` 일 때 아래 드라이버
+`hand_view` 의 `model` 은 dexhand-description 의 손 폴더 이름입니다(`orca_hand`, `allegro_hand`, `tesollo_dg5f`, ...).
+폴더 안에서 `<model>_<side>.urdf`, `<model>.urdf`, `urdf/<side>.urdf` 순으로 찾고, 없으면 유일한 `*<side>.urdf`
+(`urdf/` 포함)를 씁니다. 한쪽에 변형이 여러 개인 폴더는 `urdf:=` 로 지정하세요(절대 경로 또는 dexhand-description
+기준, `{side}` = left/right). 상대 메시 경로는 `file://` URI 로 바꿔 넘기고, rviz(`rviz:=false` 면 생략)는 URDF 루트
+링크를 fixed frame 으로 하는 공통 설정 하나를 씁니다. `retargeting.launch.py` 는 `driver:=true` 일 때 아래 드라이버
 파라미터(`pair`, `listen_port`, `spine_port`, `publish_hz`, `haptics_timeout`)도 받습니다.
 
 | 노드 | 파라미터 |

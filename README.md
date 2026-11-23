@@ -83,13 +83,15 @@ Driver only (no whatslab-sdk): `pip install --break-system-packages -r airglove_
 
 | `retarget` | Engine | Needs | `robot_urdf` (dexhand-description) |
 |---|---|---|---|
-| `geort:orca_right` | GeoRT soft prompt | — (model bundled with whatslab-sdk) | `orca_hand/urdf/{side}.urdf` (default, `{side}` = left/right) |
-| `geort:hx5_right` | GeoRT soft prompt | — (model bundled with whatslab-sdk) | `robotis_hx5_d20/urdf/hx5_d20_right.urdf` |
+| `geort:orca_right` | GeoRT soft prompt | — (model bundled with whatslab-sdk) | `orca_hand` (default) |
+| `geort:hx5_right` | GeoRT soft prompt | — (model bundled with whatslab-sdk) | `robotis_hx5_d20` |
 | `dex:orca`, `dex:allegro`, `dex:leap`, `dex:ability`, `dex:schunk`, `dex:dg5f`, `dex:robotis` | dex-retargeting DexPilot | `pip install --break-system-packages 'whatslab-sdk[hand] @ git+https://github.com/whats-lab/whatslab-sdk.git@v1.0.0' 'numpy<2.0'` (torch) | the hand's URDF |
 
 GeoRT runs on numpy only. The trained model ships with whatslab-sdk; set `WHATSLAB_GEORT_MODEL`
 to use a different one. The model is right-handed; a left glove is mirrored onto it, so left input
-still yields **right-hand robot joints**; with `{side}` in `robot_urdf` the node then picks the right-hand URDF itself. It also holds
+still yields **right-hand robot joints**; the node then picks the right-hand URDF itself. `robot_urdf` is a
+hand folder of dexhand-description (resolved like `hand_view`'s `model`) or a URDF path (absolute or relative to
+that package, `{side}` = left/right). It also holds
 Allegro and DG-5F-S prompts, but their joint names follow URDFs not yet in dexhand-description.
 DexPilot works from any URDF with a `configs/hands/<hand>_<side>.yaml` in whatslab-sdk.
 
@@ -103,6 +105,7 @@ ros2 launch airglove_driver driver.launch.py                           # driver 
 ros2 run airglove_driver haptics_keyboard --ros-args -p side:=left     # haptics test (keys 0-3)
 ros2 launch airglove_retargeting hand_view.launch.py gui:=false        # rviz (default: orca_hand, right)
 ros2 launch airglove_retargeting hand_view.launch.py model:=robotis_hx5_d20   # rviz for geort:hx5_right / dex:robotis
+ros2 launch airglove_retargeting hand_view.launch.py urdf:=/path/to/hand.urdf  # any URDF
 ros2 run airglove_retargeting safety_gate --ros-args -p robot_description:="$(cat hand.urdf)"
 ```
 
@@ -110,8 +113,11 @@ ros2 run airglove_retargeting safety_gate --ros-args -p robot_description:="$(ca
 `/joint_states`, so to watch one of them, relay it (package `ros-jazzy-topic-tools`):
 `ros2 run topic_tools relay /left_hand/joint_states /joint_states` with `hand_view.launch.py gui:=false`.
 `hand_view`'s `side` is the robot hand's side: `right` for `geort:orca_right`, even for a left glove.
-`hand_view`'s `model` is one of `base_hand`, `orca_hand`, `allegro_hand`, `tesollo_dg5f`, `robotis_hx5_d20`,
-`leap_hand`, `ability_hand`, `schunk_hand`. `retargeting.launch.py` also takes the driver parameters below
+`hand_view`'s `model` is any hand folder of dexhand-description (`orca_hand`, `allegro_hand`, `tesollo_dg5f`, ...).
+In that folder it uses the first of `<model>_<side>.urdf`, `<model>.urdf`, `urdf/<side>.urdf`, or the only
+`*<side>.urdf` (also under `urdf/`); for folders with several variants per side, pass `urdf:=` (absolute or
+relative to dexhand-description, `{side}` = left/right). Relative mesh paths are rewritten to `file://` URIs, and
+rviz (`rviz:=false` to skip it) uses one config whose fixed frame is the URDF's root link. `retargeting.launch.py` also takes the driver parameters below
 (`pair`, `listen_port`, `spine_port`, `publish_hz`, `haptics_timeout`) when `driver:=true`.
 
 | Node | Parameters |
