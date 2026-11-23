@@ -1,4 +1,4 @@
-# AGA Hand Docker 환경
+# airglove_ros2 Docker 환경
 
 ## 구조
 
@@ -24,7 +24,7 @@ export FASTDDS_BUILTIN_TRANSPORTS=UDPv4
 ```
 
 ```bash
-# 1. 이미지 빌드 (모든 의존성 포함)
+# 1. 이미지 빌드 (GitHub 에서 pip 의존성을 받으므로 네트워크 필요)
 ./docker/docker.sh build
 
 # 2. 컨테이너 접속
@@ -40,8 +40,12 @@ export FASTDDS_BUILTIN_TRANSPORTS=UDPv4
 
 | 명령어 | 설명 |
 |--------|------|
-| `./docker/docker.sh build` | 전체 이미지 빌드 (dex-retargeting, pin 포함) |
-| `./docker/docker.sh enter` | 인터랙티브 셸 진입 |
+| `./docker/docker.sh build` | 이미지 빌드 (airglove-client, whatslab-sdk, dexhand-description 포함. `dex:*` 엔진용 `whatslab-sdk[hand]`(torch)는 빠져 있어 GeoRT 만 됩니다) |
+| `./docker/docker.sh enter` | 인터랙티브 셸 진입. 이미 떠 있으면 그 컨테이너로 들어갑니다 |
+
+`enter` 는 `--privileged`, `--network host`, `--ipc=host` 로 띄우고 호스트 루트를 `/host` 에, 저장소를
+`src/airglove_ros2` 에 마운트합니다. 컨테이너가 호스트 장치·파일 전체에 접근하므로 신뢰하는 PC 에서만 쓰세요.
+rviz 는 `DISPLAY=:0` 과 X11 소켓을 쓰므로 호스트에서 `xhost +local:` 이 필요할 수 있습니다.
 
 ---
 
@@ -51,6 +55,6 @@ export FASTDDS_BUILTIN_TRANSPORTS=UDPv4
 ros:jazzy-ros-base
   └── rosdep install     # ROS 의존성 자동 설치
   └── pip install        # requirements.txt 전체 패키지 설치
-  └── colcon build       # atlas_hand 패키지 빌드
-  └── .bashrc 설정       # source, alias cb, ROS_DOMAIN_ID=30
+  └── colcon build       # airglove_msgs · airglove_driver · airglove_retargeting 빌드
+  └── .bashrc 설정       # source, alias cb
 ```

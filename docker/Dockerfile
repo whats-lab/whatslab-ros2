@@ -6,9 +6,12 @@ ENV FASTDDS_BUILTIN_TRANSPORTS=UDPv4
 
 WORKDIR ${COLCON_WS}
 
-RUN mkdir -p ${COLCON_WS}/src/atlas_hand
+RUN mkdir -p ${COLCON_WS}/src/airglove_ros2
 
-COPY package.xml requirements.txt ${COLCON_WS}/src/atlas_hand/
+COPY requirements.txt ${COLCON_WS}/src/airglove_ros2/
+COPY airglove_msgs/package.xml ${COLCON_WS}/src/airglove_ros2/airglove_msgs/
+COPY airglove_driver/package.xml airglove_driver/requirements.txt ${COLCON_WS}/src/airglove_ros2/airglove_driver/
+COPY airglove_retargeting/package.xml airglove_retargeting/requirements.txt ${COLCON_WS}/src/airglove_ros2/airglove_retargeting/
 
 RUN apt-get update && \
     rosdep update && \
@@ -28,18 +31,18 @@ RUN apt-get update && \
         libvulkan1 \
         libwayland-client0 && \
     rosdep install -i --from-path src --rosdistro $ROS_DISTRO -y \
-        --skip-keys="ament_python" && \
+        --skip-keys="ament_python dexhand_description" && \
     rm -rf /var/lib/apt/lists/*
 
 RUN pip3 install --break-system-packages --default-timeout=1000 \
-        -r ${COLCON_WS}/src/atlas_hand/requirements.txt
+        -r ${COLCON_WS}/src/airglove_ros2/requirements.txt
 
-COPY . ${COLCON_WS}/src/atlas_hand/
+COPY . ${COLCON_WS}/src/airglove_ros2/
 
 RUN bash -c "source /opt/ros/${ROS_DISTRO}/setup.bash && \
-    colcon build --symlink-install --packages-select atlas_hand"
+    colcon build --symlink-install --packages-up-to airglove_retargeting airglove_driver"
 
 RUN echo "source /opt/ros/${ROS_DISTRO}/setup.bash" >> ~/.bashrc && \
     echo "source ${COLCON_WS}/install/setup.bash" >> ~/.bashrc && \
-    echo "alias cb='colcon build --symlink-install --packages-select atlas_hand'" >> ~/.bashrc 
+    echo "alias cb='colcon build --symlink-install --packages-up-to airglove_retargeting airglove_driver'" >> ~/.bashrc 
 CMD ["bash"]

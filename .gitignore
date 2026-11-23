@@ -1,12 +1,10 @@
 .DS_Store
 *.DS_Store
 
-# --- ROS 2 빌드 및 로그 디렉토리 ---
 build/
 install/
 log/
 
-# --- Python 관련 ---
 __pycache__/
 *.py[cod]
 *$py.class
@@ -16,7 +14,6 @@ coverage.xml
 *.coverage
 .flake8
 
-# --- C++ 및 컴파일러 관련 ---
 *.o
 *.obj
 *.so
@@ -25,18 +22,15 @@ coverage.xml
 *.dll
 *.exe
 *.tar.gz
-# --- 개발 도구 및 IDE 관련 ---
 .vscode/
 .idea/
 .DS_Store
 *.swp
 *.swo
 
-# --- 하드웨어/시뮬레이션 로그 및 임시파일 ---
 test/Atlas_Log.json     
 *.log
 .claude
 .avalonia/
 
-# 내부 작업 노트
 .superpowers/

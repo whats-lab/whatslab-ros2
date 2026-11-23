@@ -1,30 +1,31 @@
 <?xml version="1.0"?>
 <?xml-model href="http://download.ros.org/schema/package_format3.xsd" schematypens="http://www.w3.org/2001/XMLSchema"?>
 <package format="3">
-  <name>atlas_hand</name>
-  <version>0.1.0</version>
-  <description>Atlas Hand - ROS 2 Python package for AGA glove retargeting</description>
+  <name>airglove_retargeting</name>
+  <version>1.0.0</version>
+  <description>Human hand (OpenXR 26 joints, airglove_msgs/HandJoints) → robot hand joint angles with whatslab GeoRT soft-prompt retargeting, plus a joint-command safety gate.</description>
   <maintainer email="sdh@whatslab.co.kr">whatslab</maintainer>
   <license>CC BY-NC-ND 4.0</license>
 
   <buildtool_depend>ament_python</buildtool_depend>
 
   <depend>rclpy</depend>
+  <depend>airglove_msgs</depend>
   <depend>sensor_msgs</depend>
-  <depend>geometry_msgs</depend>
-  <depend>tf2_ros</depend>
   <depend>std_msgs</depend>
   <depend>std_srvs</depend>
-  <depend>trajectory_msgs</depend>
-  <depend>builtin_interfaces</depend>
   <depend>ament_index_python</depend>
-  <depend>dexhand_description</depend>
+  <depend>rcl_interfaces</depend>
+  <exec_depend>python3-numpy</exec_depend>
+  <exec_depend>python3-yaml</exec_depend>
+  <exec_depend>airglove_driver</exec_depend>
+  <exec_depend>launch</exec_depend>
+  <exec_depend>launch_ros</exec_depend>
+
+  <exec_depend>robot_state_publisher</exec_depend>
   <exec_depend>joint_state_publisher_gui</exec_depend>
   <exec_depend>rviz2</exec_depend>
 
-  <test_depend>ament_copyright</test_depend>
-  <test_depend>ament_flake8</test_depend>
-  <test_depend>ament_pep257</test_depend>
   <test_depend>python3-pytest</test_depend>
 
   <export>

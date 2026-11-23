@@ -1,0 +1,14 @@
+line-length = 99
+target-version = "py312"
+
+[lint]
+select = ["E", "W", "F", "I", "N", "Q"]
+
+[lint.flake8-quotes]
+inline-quotes = "single"
+
+[lint.isort]
+known-first-party = ["airglove_driver", "airglove_retargeting", "airglove_msgs", "whatslab"]
+
+[format]
+quote-style = "single"
