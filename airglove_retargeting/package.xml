@@ -18,14 +18,13 @@
   <depend>rcl_interfaces</depend>
   <exec_depend>python3-numpy</exec_depend>
   <exec_depend>python3-yaml</exec_depend>
-  <exec_depend>airglove_driver</exec_depend>  <!-- retargeting.launch.py driver:=true -->
+  <exec_depend>airglove_driver</exec_depend>
   <exec_depend>launch</exec_depend>
   <exec_depend>launch_ros</exec_depend>
-  <!-- dexhand_description: colcon package or pip (requirements.txt) -->
+
   <exec_depend>robot_state_publisher</exec_depend>
   <exec_depend>joint_state_publisher_gui</exec_depend>
   <exec_depend>rviz2</exec_depend>
-  <!-- whatslab-sdk (pip, git tag v0.5.0): see requirements.txt -->
 
   <test_depend>python3-pytest</test_depend>
 

@@ -48,6 +48,20 @@ two checks in a row, about 2 s, e.g. the sender crashed) and when it exits. A st
 confirms it (`success` true), for up to 5 s; repeated zeros from a publisher are not forwarded again.
 Spine itself turns haptics off when it has not heard the driver for 3 s.
 
+## Messages
+
+All messages carry the Spine pair (`pair`, `/pair/N`) and, where it applies, `side` (`SIDE_LEFT=0`, `SIDE_RIGHT=1`).
+`header.stamp` is the time the driver received the value (Spine sends no timestamps).
+
+| Message | Spine OSC message | Fields |
+|---|---|---|
+| `HandJoints` | 1 / 2 | `joints[208]`: 26 OpenXR joints (PALM, WRIST, THUMB_METACARPAL .. LITTLE_TIP) × `[qx qy qz qw px py pz radius]`, metres, relative to the wrist (WRIST = identity); OpenXR hand-joint axes for both hands (−Z along the bone towards the fingertip, +Y on the back of the hand). `valid[j]` is false when Spine sent a non-finite value for joint `j`, which is then reported as identity at the origin. `seq` counts frames the driver received for that hand. `header.frame_id` = `airglove_<side>_wrist`. |
+| `WristOrientation` | 18 / 19 | `raw[4]`: the back-of-hand IMU quaternion as Spine sends it — the sensor's `[w, x, y, z]` reordered to `[y, x, z, −w]`, not normalised, in no world or ROS frame. Not a wrist pose; use it only with your own sensor-to-world alignment. |
+| `DeviceStatus` | 3 + 14 | `left_connected`, `right_connected`; `spine_protocol` (3 for Spine 3.0.0, 0 before Spine answers the heartbeat); `spine_age` (seconds since the last heartbeat reply, −1 before the first). |
+| `Alarm` | 13 | `code` (e.g. `RESTART`, `ATLAS_DEVICE_ERROR`); `side` is `SIDE_UNKNOWN=255` when Spine names no hand. |
+| `Haptics` | 9 / 10 | `strength[5]` thumb..little: `OFF=0`, `WEAK=1`, `MEDIUM=2`, `STRONG=3` (clamped to 0..3). |
+| `HapticsResult` | 11 / 12 | `success` is false when the glove is not connected or still busy with the previous command. |
+
 ## Installation
 
 ROS 2 Jazzy, Ubuntu 24.04. The pip packages go into the system Python because colcon and rclpy run
@@ -105,6 +119,8 @@ ros2 run airglove_retargeting safety_gate --ros-args -p robot_description:="$(ca
 | `airglove_driver` | `pair` (1), `listen_port` (4040), `spine_port` (4042), `publish_hz` (120, how often it checks for a new frame), `haptics_timeout` (1.0 s, 0 = off; keep above 0.3 s, haptics_keyboard's resend period) |
 | `airglove_retargeting` | `hand_type` (`left`\|`right`\|`both`), `retarget` (`geort:orca_right`), `robot_urdf` (zero-fills non-retargeted joints), `input_namespace` (`/airglove`) |
 | `safety_gate` | `robot_description` (required), `limits_override`, `timeout` (0.2 s), `output_hz` (100), `enable_deadman` (false) — sub `~/command_raw` → pub `~/command_safe`; srv `~/estop`, `~/reset`; sub `~/enable` |
+
+`safety_gate` is one layer of defence, not the last: the hardware e-stop and motor limits have the final say. Make the gate the only publisher of the driver's command topic. With a ros2_control driver its command limits enforce position and velocity, and the gate adds watchdog, deadman and e-stop; with other drivers the gate also does the clamping.
 
 ## Compatibility
 

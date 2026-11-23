@@ -6,7 +6,6 @@ from launch.substitutions import LaunchConfiguration, PathJoinSubstitution
 from launch_ros.actions import Node
 from launch_ros.substitutions import FindPackageShare
 
-# driver.launch.py 로 그대로 넘기는 인자 (pair 는 따로 선언)
 DRIVER_DEFAULTS = (
     ('listen_port', '4040'),
     ('spine_port', '4042'),
@@ -16,11 +15,6 @@ DRIVER_DEFAULTS = (
 
 
 def generate_launch_description() -> LaunchDescription:
-    """AirGlove → GeoRT 손 리타게팅 → /joint_states.
-
-    driver:=true 면 이 PC 에서 airglove_driver 도 띄운다(Spine 과 같은 PC). 드라이버가 다른 PC 에
-    있으면 driver:=false 로 리타게팅만 띄운다.
-    """
     args = [
         DeclareLaunchArgument(
             'hand_type', default_value='right', description="처리할 손: 'left' | 'right' | 'both'"

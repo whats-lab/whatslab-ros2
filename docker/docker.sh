@@ -1,7 +1,4 @@
 #!/bin/bash
-# 사용법:
-#   ./docker/docker.sh build         이미지 빌드 
-#   ./docker/docker.sh enter         인터랙티브 셸
 
 set -e
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"

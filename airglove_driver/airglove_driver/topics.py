@@ -1,5 +1,3 @@
-"""AirGlove 토픽 이름 — 드라이버와 소비자가 같이 쓴다."""
-
 SIDES = ('left', 'right')
 NAMESPACE = '/airglove'
 

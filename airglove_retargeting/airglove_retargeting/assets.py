@@ -1,5 +1,3 @@
-"""자산 경로 — launch 파일에서도 쓰므로 무거운 import 를 하지 않는다."""
-
 import os
 import site
 import sys
@@ -12,7 +10,6 @@ _AMENT_MARKER = os.path.join('share', 'ament_index', 'resource_index', 'packages
 
 
 def description_share() -> str:
-    """dexhand_description 자산 루트 — ament 패키지(colcon) 우선, 없으면 pip 패키지."""
     try:
         return get_package_share_directory(PACKAGE)
     except PackageNotFoundError:
@@ -30,11 +27,6 @@ def _pip_prefixes() -> list:
 
 
 def description_env() -> dict:
-    """rviz 가 `package://dexhand_description/...` 메쉬를 찾게 하는 추가 환경변수.
-
-    pip 설치는 ament 색인을 `<prefix>/share/ament_index` 에 깔지만 그 prefix 가
-    AMENT_PREFIX_PATH 에 없다. ament 로 이미 찾히거나 pip 설치가 없으면 {}.
-    """
     try:
         get_package_share_directory(PACKAGE)
         return {}

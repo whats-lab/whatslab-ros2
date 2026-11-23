@@ -1,22 +1,4 @@
 #!/usr/bin/env python3
-"""
-safety_gate — 텔레옵 명령 안전 게이트 ROS 노드 (whatslab.safety 얇은 래퍼).
-
-  ~/command_raw (JointState) ─ whatslab.safety.SafetyFilter
-      (위치 clamp · 속도 rate-limit · watchdog · 래칭 e-stop · deadman) ─► ~/command_safe
-
-defense-in-depth 의 한 층 — **HW e-stop / 모터 한계가 최종 권위**, 이 게이트는 보조.
-ros2_control 드라이버면 그 enforce_command_limits 가 위치/속도 강제를 맡고 이 게이트는
-텔레옵 품질층(watchdog/deadman/estop)만; non-ros2_control(SO-101)이면 clamp 까지 담당.
-**게이트가 드라이버 command 의 유일 publisher 여야 한다(우회 금지).**
-
-파라미터:
-  robot_description(str) : URDF (limit 소스, 필수)
-  limits_override(str)   : yaml {joint:{lower,upper,velocity}} — 더 빡빡하게(선택)
-  timeout(float)         : watchdog [s] (기본 0.2)
-  output_hz(float)       : 출력/rate-limit 기준 (기본 100)
-  enable_deadman(bool)   : True 면 ~/enable(Bool) 눌러야 동작 (기본 False)
-"""
 
 import rclpy
 import yaml
@@ -32,13 +14,11 @@ from whatslab.safety import SafetyFilter, load_limits_from_urdf, tighten
 
 
 class SafetyGateNode(Node):
-    """~/command_raw 를 whatslab.safety.SafetyFilter 로 걸러 ~/command_safe 로 낸다."""
 
     def __init__(self):
         super().__init__('safety_gate')
         self.declare_parameter('robot_description', '')
         self.declare_parameter('limits_override', '')
-        # timeout:=1 처럼 정수로 넘겨도 받도록 타입을 고정하지 않는다.
         self.declare_parameter('timeout', 0.2, ParameterDescriptor(dynamic_typing=True))
         self.declare_parameter('output_hz', 100.0, ParameterDescriptor(dynamic_typing=True))
         self.declare_parameter('enable_deadman', False)
@@ -60,7 +40,7 @@ class SafetyGateNode(Node):
             raise ValueError(f'timeout 은 0 보다 커야 한다: {self._timeout}')
         self._deadman = bool(self.get_parameter('enable_deadman').value)
         if self._deadman:
-            self._filter.set_enabled(False)  # 눌러야 동작
+            self._filter.set_enabled(False)
 
         self._desired = None
         self._last_stamp = None
@@ -84,7 +64,7 @@ class SafetyGateNode(Node):
     def _on_cmd(self, msg: JointState):
         d = dict(zip(msg.name, msg.position))
         if not self._seeded:
-            self._filter.seed(d)  # first-command ramp 기준
+            self._filter.seed(d)
             self._seeded = True
         self._desired = d
         self._last_stamp = self._now()
@@ -117,22 +97,20 @@ class SafetyGateNode(Node):
 
 
 def main(args: list[str] | None = None) -> None:
-    """safety_gate 노드를 띄운다."""
     rclpy.init(args=args)
     node = None
     try:
-        node = SafetyGateNode()  # 생성 실패(설정 오류 등)도 아래 finally 에서 shutdown 한다
+        node = SafetyGateNode()
         rclpy.spin(node)
     except (KeyboardInterrupt, ExternalShutdownException):
         pass
     except rclpy_implementation.RCLError:
         if rclpy.ok():
             raise
-        # SIGINT 이 context 를 먼저 닫아 spin·발행이 무효 context 를 만난 경우 — 정상 종료다.
     finally:
         if node is not None:
             node.destroy_node()
-        if rclpy.ok():  # SIGINT 핸들러가 이미 내렸으면 이중 shutdown 방지
+        if rclpy.ok():
             rclpy.shutdown()
 
 

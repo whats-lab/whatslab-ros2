@@ -1,5 +1,3 @@
-# PEP 8 검사(ruff): pycodestyle(E·W), 이름 규칙(N), import 순서(I), pyflakes(F), 따옴표(Q).
-# ROS 2 Python 스타일(ament_flake8)과 맞춘다: 줄 길이 99, 작은따옴표.
 line-length = 99
 target-version = "py312"
 

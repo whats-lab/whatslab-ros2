@@ -46,6 +46,20 @@ Spine 은 PC 당 클라이언트 하나(UDP 4040)에만 보내므로 `airglove_d
 0.2초 간격으로 최소 두 번 보내고, Spine 이 확인(`success` true)할 때까지 최대 5초 동안 다시 보냅니다.
 발행자가 0 을 반복해 보내도 다시 전달하지 않습니다. Spine 도 드라이버가 3초 동안 응답이 없으면 끕니다.
 
+## 메시지
+
+모든 메시지는 Spine pair(`pair`, `/pair/N`)를, 해당하면 `side`(`SIDE_LEFT=0`, `SIDE_RIGHT=1`)를 담습니다.
+`header.stamp` 는 드라이버가 값을 받은 시각입니다(Spine 은 시각을 보내지 않음).
+
+| 메시지 | Spine OSC 메시지 | 필드 |
+|---|---|---|
+| `HandJoints` | 1 / 2 | `joints[208]`: OpenXR 26관절(PALM, WRIST, THUMB_METACARPAL .. LITTLE_TIP) × `[qx qy qz qw px py pz radius]`, 미터, 손목 기준(WRIST = 단위). 양손 모두 OpenXR 손 관절 축(−Z 가 손끝 방향 뼈, +Y 가 손등). `valid[j]` 는 Spine 이 관절 `j` 에 유한하지 않은 값을 보냈을 때 거짓이고, 그 관절은 원점·단위 회전으로 채웁니다. `seq` 는 드라이버가 그 손에서 받은 프레임 수. `header.frame_id` = `airglove_<side>_wrist`. |
+| `WristOrientation` | 18 / 19 | `raw[4]`: Spine 이 보낸 그대로의 손등 IMU 쿼터니언 — 센서의 `[w, x, y, z]` 를 `[y, x, z, −w]` 로 재배열한 값이고, 정규화하지 않았고 어떤 월드·ROS 좌표계도 아닙니다. 손목 자세가 아니므로 자체 센서-월드 정렬과 함께만 쓰세요. |
+| `DeviceStatus` | 3 + 14 | `left_connected`, `right_connected`; `spine_protocol`(Spine 3.0.0 이면 3, 하트비트 응답 전이면 0); `spine_age`(마지막 하트비트 응답 후 초, 아직 없으면 −1). |
+| `Alarm` | 13 | `code`(예: `RESTART`, `ATLAS_DEVICE_ERROR`); Spine 이 손을 지정하지 않으면 `side` 는 `SIDE_UNKNOWN=255`. |
+| `Haptics` | 9 / 10 | `strength[5]` 엄지..소지: `OFF=0`, `WEAK=1`, `MEDIUM=2`, `STRONG=3`(0..3 으로 자름). |
+| `HapticsResult` | 11 / 12 | 글러브가 연결돼 있지 않거나 이전 명령을 처리 중이면 `success` 는 거짓. |
+
 ## 설치
 
 ROS 2 Jazzy, Ubuntu 24.04. colcon 과 rclpy 가 시스템 Python 에서 돌기 때문에 pip 패키지도 시스템 Python 에
@@ -103,6 +117,8 @@ ros2 run airglove_retargeting safety_gate --ros-args -p robot_description:="$(ca
 | `airglove_driver` | `pair`(1), `listen_port`(4040), `spine_port`(4042), `publish_hz`(120, 새 프레임 확인 주기), `haptics_timeout`(1.0 s, 0 = 끔; haptics_keyboard 재전송 주기인 0.3 s 보다 길게) |
 | `airglove_retargeting` | `hand_type`(`left`\|`right`\|`both`), `retarget` (`geort:orca_right`), `robot_urdf`(리타게팅 대상이 아닌 관절 0 채움), `input_namespace`(`/airglove`) |
 | `safety_gate` | `robot_description`(필수), `limits_override`, `timeout`(0.2 s), `output_hz`(100), `enable_deadman`(false) — sub `~/command_raw` → pub `~/command_safe`; srv `~/estop`, `~/reset`; sub `~/enable` |
+
+`safety_gate` 는 방어 층 중 하나일 뿐 마지막이 아닙니다 — 최종 권한은 하드웨어 비상정지와 모터 한계에 있습니다. 게이트가 드라이버 명령 토픽의 유일한 발행자여야 합니다(우회 금지). ros2_control 드라이버면 그 명령 한계가 위치·속도를 강제하고 게이트는 watchdog·deadman·비상정지를 더하며, 그 밖의 드라이버면 게이트가 clamp 까지 맡습니다.
 
 ## 호환성
 

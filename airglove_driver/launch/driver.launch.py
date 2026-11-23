@@ -5,7 +5,6 @@ from launch_ros.actions import Node
 
 
 def generate_launch_description() -> LaunchDescription:
-    """AirGlove 드라이버 — Spine 3.0.0 이 도는 PC 에서 띄운다 (PC 당 하나, UDP 4040)."""
     args = [
         DeclareLaunchArgument('pair', default_value='1', description='Spine pair'),
         DeclareLaunchArgument('listen_port', default_value='4040'),

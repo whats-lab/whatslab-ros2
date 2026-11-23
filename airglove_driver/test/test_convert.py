@@ -48,7 +48,6 @@ def test_status_without_spine():
 
 
 def test_stale_status_reads_as_disconnected():
-    # airglove_client 는 Spine 이 죽어도 마지막 값을 age 와 함께 계속 준다.
     st = SimpleNamespace(left_connected=True, right_connected=True, age_s=10.0)
     msg = convert.status_msg(st, (3, 10.0), 1, Time())
     assert not msg.left_connected and not msg.right_connected
@@ -62,12 +61,8 @@ def test_alarm_and_strengths():
 
 
 def test_new_haptics_result_by_arrival_window():
-    # 시작 시 이미 오래된 결과는 버리고, 최근 결과는 새 것으로 본다.
     assert not convert.track_result(5.0, 10.0, 10.0, None)[0]
     is_new, latest = convert.track_result(0.1, 10.0, 10.0, None)
     assert is_new and abs(latest - 9.9) < 1e-9
-    # 같은 결과: age 만 는다. 조회 중 3 ms 지연이 있어도 중복으로 내지 않는다.
-    assert not convert.track_result(0.103, 10.0, 10.003, 9.9)[0]  # 도착 9.9, 조회 지연 3 ms
-    # 직전 결과가 폴링 직전(age 1 ms), 새 결과가 폴링 직후 도착(다음 폴링에서 age 3 ms) — age 는
-    # 늘었지만 새 결과다.
+    assert not convert.track_result(0.103, 10.0, 10.003, 9.9)[0]
     assert convert.track_result(0.003, 10.0083, 10.0083, 9.9993)[0]

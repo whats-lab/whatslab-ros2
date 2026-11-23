@@ -6,8 +6,6 @@ from launch_ros.actions import Node
 
 from airglove_retargeting.assets import description_env, description_share
 
-# 모델 → (dexhand_description 하위 디렉토리, URDF 상대경로 규칙, rviz 파일 후보).
-# rviz 후보가 없으면 rviz/{subdir}_{side}.rviz → rviz/{subdir}.rviz 순으로 찾는다.
 HAND_MODELS = {
     'base_hand': ('base_hand', 'urdf/{side}.urdf', ['base_{side}.rviz']),
     'orca_hand': ('orca_hand', 'urdf/{side}.urdf', ['orca_hand.rviz']),
@@ -27,8 +25,6 @@ HAND_MODELS = {
 def _launch_setup(context):
     model = context.launch_configurations['model']
     side = context.launch_configurations['side']
-    # gui=false: joint_state_publisher_gui 를 띄우지 않는다 — 라이브 텔레옵(외부에서
-    # /joint_states 발행) 시 GUI 슬라이더 발행과 충돌하므로 뷰어만 필요할 때 끈다.
     gui = context.launch_configurations.get('gui', 'true').lower() != 'false'
     desc_share = description_share()
     if not desc_share:
@@ -36,7 +32,6 @@ def _launch_setup(context):
             'dexhand_description 이 없습니다 (colcon 패키지나 pip dexhand-description)'
         )
 
-    # dexhand_description 패키지(URDF/메쉬/rviz)를 자산 소스로 사용 (이 패키지는 로직만)
     subdir, urdf_rule, rviz_names = HAND_MODELS[model]
     urdf_path = os.path.join(desc_share, subdir, urdf_rule.format(side=side))
 
@@ -54,7 +49,7 @@ def _launch_setup(context):
             parameters=[{'robot_description': robot_desc}],
         ),
     ]
-    if gui:  # 수동 슬라이더 뷰 (텔레옵과 함께 쓰면 gui:=false)
+    if gui:
         nodes.append(
             Node(
                 package='joint_state_publisher_gui',
@@ -79,7 +74,7 @@ def _launch_setup(context):
             executable='rviz2',
             output='screen',
             arguments=rviz_args,
-            additional_env=description_env(),  # pip 설치일 때 메쉬 package:// 해석용
+            additional_env=description_env(),
         )
     )
 

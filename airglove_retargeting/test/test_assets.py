@@ -4,7 +4,6 @@ from airglove_retargeting import assets
 
 
 def test_pip_install_prefix_is_added_for_rviz(tmp_path, monkeypatch):
-    # ament 가 못 찾는 pip 설치 — <prefix>/share/ament_index 를 AMENT_PREFIX_PATH 에 더한다.
     marker = tmp_path / 'share' / 'ament_index' / 'resource_index' / 'packages'
     marker.mkdir(parents=True)
     (marker / assets.PACKAGE).touch()
