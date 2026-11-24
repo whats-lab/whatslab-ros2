@@ -17,7 +17,7 @@ def _launch_setup(context):
     config = context.launch_configurations
     side = config['side']
     spec = config['urdf'] or config['model']
-    urdf_path = resolve_urdf(spec, side)
+    urdf_path = resolve_urdf(spec, side, meshes=True)
     if not os.path.isfile(urdf_path):
         raise FileNotFoundError(
             f'URDF 를 찾을 수 없습니다: {spec} ({side}) -> {urdf_path!r}. urdf:=<경로> 로 지정'
@@ -63,8 +63,8 @@ def generate_launch_description() -> LaunchDescription:
         [
             DeclareLaunchArgument(
                 'model',
-                default_value='orca_hand',
-                description='dexhand_description 의 손 폴더 이름 (orca_hand, allegro_hand, ...)',
+                default_value='orca_hand_v2',
+                description='dexhand_description 의 손 폴더 이름 (orca_hand_v2, allegro_hand ...)',
             ),
             DeclareLaunchArgument(
                 'side',

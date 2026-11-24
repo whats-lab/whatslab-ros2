@@ -103,3 +103,23 @@ def test_root_link():
         '</robot>'
     )
     assert assets.root_link(xml) == 'base'
+
+
+def test_resolve_urdf_uses_fetched_hand_only_for_meshes(tmp_path, monkeypatch):
+    _touch(tmp_path / 'share', 'leap_hand/leap_hand_left.urdf')
+    _touch(tmp_path / 'cache', 'leap_hand/leap_hand_left.urdf')
+    monkeypatch.setattr(assets, 'description_share', lambda: str(tmp_path / 'share'))
+    monkeypatch.setattr(assets, 'fetched_share', lambda model: str(tmp_path / 'cache'))
+    assert assets.resolve_urdf('leap_hand', 'left') == str(
+        tmp_path / 'share/leap_hand/leap_hand_left.urdf'
+    )
+    assert assets.resolve_urdf('leap_hand', 'left', meshes=True) == str(
+        tmp_path / 'cache/leap_hand/leap_hand_left.urdf'
+    )
+    assert assets.resolve_urdf('leap_hand/leap_hand_{side}.urdf', 'left', meshes=True) == str(
+        tmp_path / 'cache/leap_hand/leap_hand_left.urdf'
+    )
+    monkeypatch.setattr(assets, 'fetched_share', lambda model: '')
+    assert assets.resolve_urdf('leap_hand', 'left', meshes=True) == str(
+        tmp_path / 'share/leap_hand/leap_hand_left.urdf'
+    )

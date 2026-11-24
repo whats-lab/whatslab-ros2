@@ -1,3 +1,5 @@
+import importlib
+import importlib.util
 import os
 import re
 import site
@@ -61,16 +63,26 @@ def find_hand_urdf(share: str, model: str, side: str) -> str:
     return os.path.join(folder, plain[0]) if len(plain) == 1 else ''
 
 
-def resolve_urdf(spec: str, side: str) -> str:
+def fetched_share(model: str) -> str:
+    if importlib.util.find_spec(PACKAGE) is None:
+        return ''
+    module = importlib.import_module(PACKAGE)
+    if not hasattr(module, 'hand_dir'):
+        return ''
+    path = module.hand_dir(model)
+    return str(path.parent) if path else ''
+
+
+def resolve_urdf(spec: str, side: str, meshes: bool = False) -> str:
     if not spec:
         return ''
     if spec.endswith('.urdf'):
         path = spec.replace('{side}', side)
         if os.path.isabs(path):
             return path
-        share = description_share()
+        share = meshes and fetched_share(path.split('/')[0]) or description_share()
         return os.path.join(share, path) if share else ''
-    share = description_share()
+    share = meshes and fetched_share(spec) or description_share()
     return find_hand_urdf(share, spec, side) if share else ''
 
 

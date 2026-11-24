@@ -83,7 +83,7 @@ Driver only (no whatslab-sdk): `pip install --break-system-packages -r airglove_
 
 | `retarget` | Engine | Needs | `robot_urdf` (dexhand-description) |
 |---|---|---|---|
-| `geort:orca_right` | GeoRT soft prompt | — (model bundled with whatslab-sdk) | `orca_hand` (default) |
+| `geort:orca_right` | GeoRT soft prompt | — (model bundled with whatslab-sdk) | `orca_hand_v2` (default) |
 | `geort:hx5_right` | GeoRT soft prompt | — (model bundled with whatslab-sdk) | `robotis_hx5_d20` |
 | `dex:orca`, `dex:allegro`, `dex:leap`, `dex:ability`, `dex:schunk`, `dex:dg5f`, `dex:robotis` | dex-retargeting DexPilot | `pip install --break-system-packages 'whatslab-sdk[hand] @ git+https://github.com/whats-lab/whatslab-sdk.git@v1.0.0' 'numpy<2.0'` (torch) | the hand's URDF |
 
@@ -103,7 +103,7 @@ ros2 launch airglove_retargeting retargeting.launch.py hand_type:=both
 ros2 launch airglove_retargeting retargeting.launch.py driver:=false   # retargeting only
 ros2 launch airglove_driver driver.launch.py                           # driver only
 ros2 run airglove_driver haptics_keyboard --ros-args -p side:=left     # haptics test (keys 0-3)
-ros2 launch airglove_retargeting hand_view.launch.py gui:=false        # rviz (default: orca_hand, right)
+ros2 launch airglove_retargeting hand_view.launch.py gui:=false        # rviz (default: orca_hand_v2, right)
 ros2 launch airglove_retargeting hand_view.launch.py model:=robotis_hx5_d20   # rviz for geort:hx5_right / dex:robotis
 ros2 launch airglove_retargeting hand_view.launch.py urdf:=/path/to/hand.urdf  # any URDF
 ros2 run airglove_retargeting safety_gate --ros-args -p robot_description:="$(cat hand.urdf)"
@@ -113,10 +113,10 @@ ros2 run airglove_retargeting safety_gate --ros-args -p robot_description:="$(ca
 `/joint_states`, so to watch one of them, relay it (package `ros-jazzy-topic-tools`):
 `ros2 run topic_tools relay /left_hand/joint_states /joint_states` with `hand_view.launch.py gui:=false`.
 `hand_view`'s `side` is the robot hand's side: `right` for `geort:orca_right`, even for a left glove.
-`hand_view`'s `model` is any hand folder of dexhand-description (`orca_hand`, `allegro_hand`, `tesollo_dg5f`, ...).
+`hand_view`'s `model` is any hand folder of dexhand-description (`orca_hand_v2`, `allegro_hand`, `tesollo_dg5f`, ...).
 In that folder it uses the first of `<model>_<side>.urdf`, `<model>.urdf`, `urdf/<side>.urdf`, or the only
 `*<side>.urdf` (also under `urdf/`); for folders with several variants per side, pass `urdf:=` (absolute or
-relative to dexhand-description, `{side}` = left/right). Relative mesh paths are rewritten to `file://` URIs, and
+relative to dexhand-description, `{side}` = left/right). The hand's original meshes are downloaded once into the user cache (`dexhand_description.hand_dir`, same as `dexhand-fetch <model>`); without them rviz shows no meshes. Relative mesh paths are rewritten to `file://` URIs, and
 rviz (`rviz:=false` to skip it) uses one config whose fixed frame is the URDF's root link. `retargeting.launch.py` also takes the driver parameters below
 (`pair`, `listen_port`, `spine_port`, `publish_hz`, `haptics_timeout`) when `driver:=true`.
 

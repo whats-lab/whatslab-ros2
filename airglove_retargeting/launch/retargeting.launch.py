@@ -28,7 +28,7 @@ def generate_launch_description() -> LaunchDescription:
         ),
         DeclareLaunchArgument(
             'robot_urdf',
-            default_value='orca_hand',
+            default_value='orca_hand_v2',
             description=(
                 '0-fill 발행용 URDF: 손 폴더 이름 또는 URDF 경로 '
                 '(dexhand_description 기준, {side} = left/right)'

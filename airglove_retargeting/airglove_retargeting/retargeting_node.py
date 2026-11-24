@@ -18,7 +18,7 @@ from whatslab.core.types import HandPose, InputSample
 from whatslab.retarget.retargeter import DEX_PREFIX, HandRetargeter
 
 DEFAULT_RETARGET = 'geort:orca_right'
-DEFAULT_URDF = 'orca_hand'
+DEFAULT_URDF = 'orca_hand_v2'
 SIDES = ('left', 'right')
 
 SENSOR_QOS = QoSProfile(

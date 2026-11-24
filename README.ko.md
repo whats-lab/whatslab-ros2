@@ -81,7 +81,7 @@ cd ~/ros2_ws && colcon build && source install/setup.bash
 
 | `retarget` | 엔진 | 필요한 것 | `robot_urdf` (dexhand-description) |
 |---|---|---|---|
-| `geort:orca_right` | GeoRT 소프트 프롬프트 | — (모델은 whatslab-sdk 에 동봉) | `orca_hand` (기본) |
+| `geort:orca_right` | GeoRT 소프트 프롬프트 | — (모델은 whatslab-sdk 에 동봉) | `orca_hand_v2` (기본) |
 | `geort:hx5_right` | GeoRT 소프트 프롬프트 | — (모델은 whatslab-sdk 에 동봉) | `robotis_hx5_d20` |
 | `dex:orca`, `dex:allegro`, `dex:leap`, `dex:ability`, `dex:schunk`, `dex:dg5f`, `dex:robotis` | dex-retargeting DexPilot | `pip install --break-system-packages 'whatslab-sdk[hand] @ git+https://github.com/whats-lab/whatslab-sdk.git@v1.0.0' 'numpy<2.0'` (torch) | 해당 손 URDF |
 
@@ -101,7 +101,7 @@ ros2 launch airglove_retargeting retargeting.launch.py hand_type:=both
 ros2 launch airglove_retargeting retargeting.launch.py driver:=false   # 리타게팅만
 ros2 launch airglove_driver driver.launch.py                           # 드라이버만
 ros2 run airglove_driver haptics_keyboard --ros-args -p side:=left     # 햅틱 테스트 (키 0-3)
-ros2 launch airglove_retargeting hand_view.launch.py gui:=false        # rviz (기본 orca_hand 오른손)
+ros2 launch airglove_retargeting hand_view.launch.py gui:=false        # rviz (기본 orca_hand_v2 오른손)
 ros2 launch airglove_retargeting hand_view.launch.py model:=robotis_hx5_d20   # geort:hx5_right·dex:robotis 를 rviz 로
 ros2 launch airglove_retargeting hand_view.launch.py urdf:=/path/to/hand.urdf  # 임의의 URDF
 ros2 run airglove_retargeting safety_gate --ros-args -p robot_description:="$(cat hand.urdf)"
@@ -111,10 +111,10 @@ ros2 run airglove_retargeting safety_gate --ros-args -p robot_description:="$(ca
 보여 주므로, 한쪽을 보려면 relay 해 주세요(패키지 `ros-jazzy-topic-tools`):
 `ros2 run topic_tools relay /left_hand/joint_states /joint_states` 와 `hand_view.launch.py gui:=false`.
 `hand_view` 의 `side` 는 로봇 손 쪽입니다. `geort:orca_right` 면 왼손 글러브여도 `right` 입니다.
-`hand_view` 의 `model` 은 dexhand-description 의 손 폴더 이름입니다(`orca_hand`, `allegro_hand`, `tesollo_dg5f`, ...).
+`hand_view` 의 `model` 은 dexhand-description 의 손 폴더 이름입니다(`orca_hand_v2`, `allegro_hand`, `tesollo_dg5f`, ...).
 폴더 안에서 `<model>_<side>.urdf`, `<model>.urdf`, `urdf/<side>.urdf` 순으로 찾고, 없으면 유일한 `*<side>.urdf`
 (`urdf/` 포함)를 씁니다. 한쪽에 변형이 여러 개인 폴더는 `urdf:=` 로 지정하세요(절대 경로 또는 dexhand-description
-기준, `{side}` = left/right). 상대 메시 경로는 `file://` URI 로 바꿔 넘기고, rviz(`rviz:=false` 면 생략)는 URDF 루트
+기준, `{side}` = left/right). 손의 원본 메시는 처음 한 번 사용자 캐시로 받습니다(`dexhand_description.hand_dir`, `dexhand-fetch <model>` 과 같음, 실패하면 rviz 에 메시 없이 표시). 상대 메시 경로는 `file://` URI 로 바꿔 넘기고, rviz(`rviz:=false` 면 생략)는 URDF 루트
 링크를 fixed frame 으로 하는 공통 설정 하나를 씁니다. `retargeting.launch.py` 는 `driver:=true` 일 때 아래 드라이버
 파라미터(`pair`, `listen_port`, `spine_port`, `publish_hz`, `haptics_timeout`)도 받습니다.
 
