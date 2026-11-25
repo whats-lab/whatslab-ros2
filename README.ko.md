@@ -22,7 +22,7 @@
 |---|---|---|
 | `airglove_msgs` | Spine 메시지마다 하나: `HandJoints`, `WristOrientation`, `DeviceStatus`, `Alarm`, `Haptics`, `HapticsResult` | — |
 | `airglove_driver` | Spine 3.0.0 → 토픽, 햅틱 → 글러브. 글러브를 여는 유일한 노드. | [AirGlove-Client](https://github.com/whats-lab/AirGlove-Client) (pip) |
-| `airglove_retargeting` | `HandJoints` → 로봇 손 `JointState`(GeoRT 소프트 프롬프트 신경망), 관절 명령 `safety_gate`, `hand_view` | [whatslab-sdk](https://github.com/whats-lab/whatslab-sdk) (pip) |
+| `airglove_retargeting` | `HandJoints` → 로봇 손 `JointState`(GeoRT 소프트 프롬프트 신경망 또는 DexPilot), 관절 명령 `safety_gate`, `hand_view` | [whatslab-sdk](https://github.com/whats-lab/whatslab-sdk) (pip) |
 
 Spine 은 PC 당 클라이언트 하나(UDP 4040)에만 보내므로 `airglove_driver` 는 Spine PC 에서 돌립니다.
 리타게팅 노드는 토픽만 구독하므로 ROS 네트워크의 어느 PC 에서든 돌릴 수 있고,
@@ -128,7 +128,7 @@ ros2 run airglove_retargeting safety_gate --ros-args -p robot_description:="$(ca
 
 ## 호환성
 
-Spine **3.0.0**(OSC 프로토콜 3), AirGlove-Client 0.4.0 을 씁니다. Spine 과 `airglove_driver` 는 같은 PC 에서
+Spine **3.0.0**(OSC 프로토콜 3), AirGlove-Client 1.0.0 을 씁니다. Spine 과 `airglove_driver` 는 같은 PC 에서
 돌아야 합니다. Spine 2.x 는 지원하지 않습니다 — Spine 2.3.1 미만은 whatslab-ros2 0.1.0(`atlas_hand`)을
 쓰시고, Spine 2.3.x 는 어느 릴리스에서도 지원하지 않습니다.
 

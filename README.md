@@ -23,7 +23,7 @@ package turns the hand joints into robot-hand joint angles.
 |---|---|---|
 | `airglove_msgs` | Messages, one per Spine message: `HandJoints`, `WristOrientation`, `DeviceStatus`, `Alarm`, `Haptics`, `HapticsResult` | — |
 | `airglove_driver` | Spine 3.0.0 → topics, haptics → glove. The only node that opens the glove. | [AirGlove-Client](https://github.com/whats-lab/AirGlove-Client) (pip) |
-| `airglove_retargeting` | `HandJoints` → robot-hand `JointState` (GeoRT soft-prompt network), joint-command `safety_gate`, `hand_view` | [whatslab-sdk](https://github.com/whats-lab/whatslab-sdk) (pip) |
+| `airglove_retargeting` | `HandJoints` → robot-hand `JointState` (GeoRT soft-prompt network or DexPilot), joint-command `safety_gate`, `hand_view` | [whatslab-sdk](https://github.com/whats-lab/whatslab-sdk) (pip) |
 
 Spine talks to exactly one client per machine (UDP 4040), so run `airglove_driver` on the Spine
 PC. The retargeting node only subscribes to topics and can run anywhere on the ROS network.
@@ -130,7 +130,7 @@ rviz (`rviz:=false` to skip it) uses one config whose fixed frame is the URDF's 
 
 ## Compatibility
 
-Spine **3.0.0** (OSC protocol 3) through AirGlove-Client 0.4.0. Spine and `airglove_driver` must run
+Spine **3.0.0** (OSC protocol 3) through AirGlove-Client 1.0.0. Spine and `airglove_driver` must run
 on the same machine. Spine 2.x is not supported: for Spine below 2.3.1 use whatslab-ros2 0.1.0
 (`atlas_hand`); Spine 2.3.x is not supported by any release.
 
