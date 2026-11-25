@@ -85,7 +85,7 @@ Driver only (no whatslab-sdk): `pip install --break-system-packages -r airglove_
 |---|---|---|---|
 | `geort:orca_right` | GeoRT soft prompt | — (model bundled with whatslab-sdk) | `orca_hand_v2` (default) |
 | `geort:hx5_right` | GeoRT soft prompt | — (model bundled with whatslab-sdk) | `robotis_hx5_d20` |
-| `dex:orca`, `dex:allegro`, `dex:leap`, `dex:ability`, `dex:schunk`, `dex:dg5f`, `dex:robotis` | dex-retargeting DexPilot | `pip install --break-system-packages 'whatslab-sdk[hand] @ git+https://github.com/whats-lab/whatslab-sdk.git@v1.0.0' 'numpy<2.0'` (torch) | the hand's URDF |
+| `dex:<config>` (e.g. `dex:dg5f_s`, `dex:orca`, `dex:robotis`, `dex:allegro`; every hand config bundled with whatslab-sdk) | DexPilot + posture prior (numpy/scipy) | — (included in `requirements.txt`) | the hand's URDF |
 
 GeoRT runs on numpy only. The trained model ships with whatslab-sdk; set `WHATSLAB_GEORT_MODEL`
 to use a different one. The model is right-handed; a left glove is mirrored onto it, so left input

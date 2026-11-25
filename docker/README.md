@@ -40,7 +40,7 @@ export FASTDDS_BUILTIN_TRANSPORTS=UDPv4
 
 | 명령어 | 설명 |
 |--------|------|
-| `./docker/docker.sh build` | 이미지 빌드 (airglove-client, whatslab-sdk, dexhand-description 포함. `dex:*` 엔진용 `whatslab-sdk[hand]`(torch)는 빠져 있어 GeoRT 만 됩니다) |
+| `./docker/docker.sh build` | 이미지 빌드 (airglove-client, whatslab-sdk, dexhand-description 포함. GeoRT 와 `dex:*` 엔진 모두 사용 가능) |
 | `./docker/docker.sh enter` | 인터랙티브 셸 진입. 이미 떠 있으면 그 컨테이너로 들어갑니다 |
 
 `enter` 는 `--privileged`, `--network host`, `--ipc=host` 로 띄우고 호스트 루트를 `/host` 에, 저장소를
