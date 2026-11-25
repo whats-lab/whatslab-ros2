@@ -112,6 +112,7 @@ ros2 run airglove_retargeting safety_gate --ros-args -p robot_description:="$(ca
 `ros2 run topic_tools relay /left_hand/joint_states /joint_states` 와 `hand_view.launch.py gui:=false`.
 `hand_view` 의 `side` 는 로봇 손 쪽입니다. `geort:orca_right` 면 왼손 글러브여도 `right` 입니다.
 `hand_view` 의 `model` 은 dexhand-description 의 손 폴더 이름입니다(`orca_hand_v2`, `allegro_hand`, `tesollo_dg5f`, ...).
+모든 손은 브라우저에서도 [whats-lab.github.io/whatslab-sdk](https://whats-lab.github.io/whatslab-sdk/) 로 미리 볼 수 있습니다.
 폴더 안에서 `<model>_<side>.urdf`, `<model>.urdf`, `urdf/<side>.urdf` 순으로 찾고, 없으면 유일한 `*<side>.urdf`
 (`urdf/` 포함)를 씁니다. 한쪽에 변형이 여러 개인 폴더는 `urdf:=` 로 지정하세요(절대 경로 또는 dexhand-description
 기준, `{side}` = left/right). 손의 원본 메시는 처음 한 번 사용자 캐시로 받습니다(`dexhand_description.hand_dir`, `dexhand-fetch <model>` 과 같음, 실패하면 rviz 에 메시 없이 표시). 상대 메시 경로는 `file://` URI 로 바꿔 넘기고, rviz(`rviz:=false` 면 생략)는 URDF 루트

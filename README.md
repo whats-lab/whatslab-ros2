@@ -114,6 +114,7 @@ ros2 run airglove_retargeting safety_gate --ros-args -p robot_description:="$(ca
 `ros2 run topic_tools relay /left_hand/joint_states /joint_states` with `hand_view.launch.py gui:=false`.
 `hand_view`'s `side` is the robot hand's side: `right` for `geort:orca_right`, even for a left glove.
 `hand_view`'s `model` is any hand folder of dexhand-description (`orca_hand_v2`, `allegro_hand`, `tesollo_dg5f`, ...).
+All hands can also be previewed in the browser at [whats-lab.github.io/whatslab-sdk](https://whats-lab.github.io/whatslab-sdk/).
 In that folder it uses the first of `<model>_<side>.urdf`, `<model>.urdf`, `urdf/<side>.urdf`, or the only
 `*<side>.urdf` (also under `urdf/`); for folders with several variants per side, pass `urdf:=` (absolute or
 relative to dexhand-description, `{side}` = left/right). The hand's original meshes are downloaded once into the user cache (`dexhand_description.hand_dir`, same as `dexhand-fetch <model>`); without them rviz shows no meshes. Relative mesh paths are rewritten to `file://` URIs, and
