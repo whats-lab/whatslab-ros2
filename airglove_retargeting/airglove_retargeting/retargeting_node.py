@@ -1,7 +1,6 @@
 #!/usr/bin/env python3
 
 import os
-import traceback
 import xml.etree.ElementTree as ET
 
 import numpy as np
@@ -101,30 +100,14 @@ class RetargetingNode(Node):
         )
         return []
 
-    def _reset(self, side: str) -> None:
-        try:
-            self._ctrl[side].reset()
-        except Exception:
-            self.get_logger().error(
-                f'[{side}] 엔진 리셋 실패\n{traceback.format_exc()}', throttle_duration_sec=1.0
-            )
-
     def _on_hand(self, side: str, msg: HandJoints) -> None:
         ctrl = self._ctrl[side]
         sample = hand_sample(msg)
-        try:
-            cmd = ctrl.compute(sample)
-        except Exception:
-            self.get_logger().error(
-                f'[{side}] 리타게팅 실패\n{traceback.format_exc()}', throttle_duration_sec=1.0
-            )
-            self._reset(side)
-            return
+        cmd = ctrl.compute(sample)
         if not sample.tracked:
             return
-        if ctrl.last_error is not None:
-            reason = getattr(ctrl.last_error, 'cause', ctrl.last_error)
-            self.get_logger().warn(f'[{side}] {reason}', throttle_duration_sec=1.0)
+        if ctrl.last_failure is not None:
+            self.get_logger().warn(f'[{side}] {ctrl.last_failure}', throttle_duration_sec=1.0)
             return
         driven = dict(zip(cmd.joint_names, np.asarray(cmd.joint_angles, dtype=float).tolist()))
         names = self._all_joints[side] or list(driven)
